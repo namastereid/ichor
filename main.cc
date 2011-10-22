@@ -79,6 +79,8 @@ void init_sdl()
 		gluOrtho2D(0, W, 0, H);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
+
+    SDL_WM_GrabInput(SDL_GRAB_ON);
 }
 
 void events(GameMode* game) 

@@ -21,7 +21,7 @@ const int MENUH = H;
 class FontRenderer {
 public:
 	FontRenderer() : 
-			 grid_(MENUW,MENUH,vec(0,0),vec(MENUW,MENUH),0,1e-4),
+			 grid_(MENUW,MENUH,vec(0,0),vec(MENUW,MENUH),1e-5,2e-6),
 			 den_(1), fallback_(false)
 	{
 		if (!TTF_WasInit() && TTF_Init() == -1) {
