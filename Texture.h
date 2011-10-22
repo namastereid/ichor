@@ -8,6 +8,8 @@
 
 using std::string;
 
+class Texture;
+
 class TextureBinding {  
     friend class Texture;
 public:
