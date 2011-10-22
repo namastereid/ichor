@@ -238,6 +238,7 @@ int main(int argc, char** argv)
 	srand(time(NULL));
 	
 	init_sdl();
+    glutInit(&argc, argv);
 
 	Menu main_menu(FONTRENDERER);
 	main_menu.add_item(new GalagaMenuItem);
