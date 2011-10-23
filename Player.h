@@ -12,19 +12,25 @@ class Player
 public:
 	Player(Color color, int sign, vec pos, int life, Texture* tex) :
 		color_(color), sign_(sign), pos_(pos), store_(0), 
-		life_(life), tex_(tex) 
+		life_(life), tex_(tex), blinktime_(0)
 	{ }
 
 	bool check_hit(DensityGrid* field_) {
-		return field_->get_density(pos_) * sign_ < -PLAYER_DEATH_DENSITY;
+		return vulnerable() && field_->get_density(pos_) * sign_ < -PLAYER_DEATH_DENSITY;
 	}
+
+    bool vulnerable() const {
+        return blinktime_ <= 0;
+    }
 
 	void die() {
 		life_--;
-		store_ += DIE_ENERGY;
+        blinktime_ = INVINCIBLE_TIME;
 	}
 
 	void step(FluidDensityGrid* field_) {
+        blinktime_ -= DT;
+
 		float dfluid = EMPTY_RATE*store_ + INCOME_RATE;
 		store_ -= EMPTY_RATE*store_*DT;
 		field_->add_density(pos_, sign_*dfluid);
@@ -37,7 +43,7 @@ public:
 	}
 
 	void draw() const {
-		{
+        if (blinktime_ <= 0 || sin(8*M_PI*blinktime_) < 0) {
 			glColor3f(1,1,1);
 			TextureBinding b = tex_->bind();
 			draw_rect(pos_ - vec(3,3), pos_ + vec(3,3));
@@ -86,6 +92,7 @@ public:
 	}
 
 private:
+    float blinktime_;
 	int sign_;
 	vec pos_;
 	float store_;

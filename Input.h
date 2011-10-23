@@ -68,7 +68,7 @@ public:
 
 	bool events(SDL_Event* e) {
 		if (e->type == SDL_MOUSEMOTION) {
-			vec dp(e->motion.xrel * 0.1, -e->motion.yrel * 0.1);
+			vec dp(e->motion.xrel * 0.4, -e->motion.yrel * 0.4);
 			tmpdir_ += dp;
 			if (tmpdir_.norm() > FLOWSPEED * DT) {
 				tmpdir_ = FLOWSPEED * DT * ~tmpdir_;

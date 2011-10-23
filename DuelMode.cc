@@ -11,10 +11,9 @@ private:
 	Player ppos_;
 	Player pneg_;
 
-	float invincible_timer_;
 	FluidDensityGrid* field_;
 
-	Explosion* explosion_;
+	std::list<Explosion*> explosions_;
 
 	std::list<Particle> particles_;
 	float particles_pending_;
@@ -23,27 +22,25 @@ private:
 	Input* neginput_;
 	
 	void check_hit() {
-		invincible_timer_ -= DT;
-		if ((ppos_.get_life() <= 0 || pneg_.get_life() <= 0) && invincible_timer_ < INVINCIBLE_TIME - 1) {
+		if ((ppos_.get_life() <= 0 && ppos_.vulnerable())
+         || (pneg_.get_life() <= 0 && pneg_.vulnerable())) {
 			QUIT = true;
 		}
-		if (invincible_timer_ < 0) {
-			delete explosion_;  explosion_ = 0;
-			invincible_timer_ = 0;
-		}
 
-		if (invincible_timer_ == 0) {
-			if (ppos_.check_hit(field_)) {
-				ppos_.die();
-				explosion_ = new InwardVortexExplosion(ppos_.get_color(), ppos_.position(), DEATH_FLUID, INVINCIBLE_TIME);
-				invincible_timer_ = INVINCIBLE_TIME;
-			}
-			if (pneg_.check_hit(field_)) {
-				pneg_.die();
-				explosion_ = new InwardVortexExplosion(pneg_.get_color(), pneg_.position(), -DEATH_FLUID, INVINCIBLE_TIME);
-				invincible_timer_ = INVINCIBLE_TIME;
-			}
-		}
+        if (ppos_.vulnerable() && pneg_.vulnerable()) {
+            if (ppos_.check_hit(field_)) {
+                ppos_.die();
+                float amt = field_->get_balance();
+                ppos_.store(amt > 0 ? 0 : -DIE_ENERGY_FACTOR * amt);
+                explosions_.push_back(new InwardVortexExplosion(ppos_.get_color(), ppos_.position(), DEATH_FLUID, INVINCIBLE_TIME));
+            }
+            if (pneg_.check_hit(field_)) {
+                pneg_.die();
+                float amt = field_->get_balance();
+                pneg_.store(amt < 0 ? 0 : DIE_ENERGY_FACTOR * amt);
+                explosions_.push_back(new InwardVortexExplosion(pneg_.get_color(), pneg_.position(), -DEATH_FLUID, INVINCIBLE_TIME));
+            }
+        }
 	}
 
 	void frame_input() {
@@ -63,9 +60,11 @@ private:
 		ppos_ = Player(Color(1, 0.5, 0), 1, vec(CLAMPW, H-CLAMPH-1), ppos_.get_life(), load_texture(ICHOR_DATADIR "/redfirefly.png"));
 		pneg_ = Player(Color(0, 0.5, 1), -1, vec(W-CLAMPW-1, CLAMPH), pneg_.get_life(), load_texture(ICHOR_DATADIR "/bluefirefly.png"));
 
-		invincible_timer_ = INVINCIBLE_TIME;
-		delete explosion_;
-		explosion_ = 0;
+        for (std::list<Explosion*>::iterator i = explosions_.begin(); 
+             i != explosions_.end(); ++i) {
+            delete *i;
+        }
+        explosions_.empty();
 	}
 
 	void check_unstable() {
@@ -116,8 +115,7 @@ public:
 	DuelMode(Input* posinput, Input* neginput) 
 		: ppos_(Color(1, 0.5, 0), 1, vec(CLAMPW, H-CLAMPH-1), 5, load_texture(ICHOR_DATADIR "/redfirefly.png")),
 		  pneg_(Color(0, 0.5, 1), -1,vec(W-CLAMPW-1, CLAMPH), 5, load_texture(ICHOR_DATADIR "/bluefirefly.png")),
-		  invincible_timer_(INVINCIBLE_TIME),
-		  field_(0), explosion_(0), particles_pending_(0),
+		  field_(0), particles_pending_(0),
 		  posinput_(posinput), neginput_(neginput)
 	{
 		clear_field();
@@ -127,7 +125,11 @@ public:
 		delete posinput_;
 		delete neginput_;
 		delete field_;
-		delete explosion_;
+        for (std::list<Explosion*>::iterator i = explosions_.begin();
+             i != explosions_.end(); ++i) {
+            delete *i;
+        }
+        explosions_.empty();
 	}
 	
 	void step() {
@@ -136,7 +138,20 @@ public:
 		
 		check_hit();
 
-		if (explosion_) explosion_->step(field_);
+        for (std::list<Explosion*>::iterator i = explosions_.begin();
+             i != explosions_.end();) {
+            if ((*i)->done()) {
+                delete *i;
+                std::list<Explosion*>::iterator tmp = i;
+                ++tmp;
+                explosions_.erase(i);
+                i = tmp;
+            }
+            else {
+                (*i)->step(field_);
+                ++i;
+            }
+        }
 		
 		field_->step_velocity();
 		field_->step_density();
@@ -157,7 +172,10 @@ public:
 
 		draw_particles(particles_);
 		
-		if (explosion_) explosion_->draw();
+        for (std::list<Explosion*>::const_iterator i = explosions_.begin();
+             i != explosions_.end(); ++i) {
+            (*i)->draw();
+        }
 	}
 
 	bool events(SDL_Event* e) {
