@@ -40,18 +40,18 @@ Texture::Texture(const string& filename)
     : key_(filename)
 {
     if (texture_cache.find(filename) != texture_cache.end()) {
-		std::cerr << "Attempt to load already-loaded texture " << filename << "\n";
-		exit(1);
+        std::cerr << "Attempt to load already-loaded texture " << filename << "\n";
+        exit(1);
     }
     
     SDL_Surface* surf = IMG_Load(filename.c_str());
     if (!surf) {
-		std::cerr << "Couldn't load " << filename << ": " << IMG_GetError() << "\n";
-	}
+        std::cerr << "Couldn't load " << filename << ": " << IMG_GetError() << "\n";
+    }
 
     if (parity(surf->h) != 1 || parity(surf->w) != 1) {
-		std::cerr << "Image " << filename << " does not have height and width powers of 2\n";
-		exit(1);
+        std::cerr << "Image " << filename << " does not have height and width powers of 2\n";
+        exit(1);
     }
 
     blend_ = (surf->format->BytesPerPixel == 4);
@@ -67,8 +67,8 @@ Texture::Texture(const string& filename)
                  GL_UNSIGNED_BYTE, surf->pixels);
 
     glPopAttrib();
-	
-	SDL_FreeSurface(surf);
+    
+    SDL_FreeSurface(surf);
 }
 
 Texture::~Texture() 

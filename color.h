@@ -3,17 +3,17 @@
 
 class Color {
 public:
-	float R, G, B;
+    float R, G, B;
 
-	Color(float red, float green, float blue): R(red), G(green), B(blue) { }
+    Color(float red, float green, float blue): R(red), G(green), B(blue) { }
 
-	void set_color() const {
-		glColor3f(R, G, B);
-	}
+    void set_color() const {
+        glColor3f(R, G, B);
+    }
 
-	void set_color_a(float alpha) const {
-		glColor4f(R, G, B, alpha);
-	}
+    void set_color_a(float alpha) const {
+        glColor4f(R, G, B, alpha);
+    }
 };
 
 #endif

@@ -29,7 +29,7 @@ public:
     TextureBinding bind() const;
     
 private:    
-	static int textures_alloced;
+    static int textures_alloced;
 
     string key_;
     GLuint texid_;
