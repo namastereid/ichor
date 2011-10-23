@@ -23,8 +23,8 @@ const int CLAMPW = 20;
 const int CLAMPH = 20;
 
 const float INVINCIBLE_TIME = 3;
-const float PARTICLE_RATE = 50;
-const float PLAYER_DEATH_DENSITY = 1e-2;
+const float PARTICLE_RATE = 5;
+const float PLAYER_DEATH_DENSITY = 5e-3;
 const float ENEMY_DEATH_DENSITY = 3e-3;
 const float FLOWSPEED = 1600;
 const float INCOME_RATE = 1;

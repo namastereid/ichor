@@ -25,8 +25,8 @@ public:
 void draw_particles(const std::list<Particle> particles) {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glPointSize(1.0);
-	glColor4f(0.5, 1, 0.5, 0.25);
+	glPointSize(2.0);
+	glColor4f(0.5, 1, 0.5, 0.50);
 	glBegin(GL_POINTS);
 	for (std::list<Particle>::const_iterator i = particles.begin(); i != particles.end(); ++i) {
 		glVertex2f(i->pos.x, i->pos.y);

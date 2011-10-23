@@ -263,7 +263,12 @@ public:
 	void add_density(vec x, float amt) {
 		const int xx = ix_x(x.x), yy = ix_y(x.y);
 		total_density_ += DT * amt;
-		D_[xx][yy] += DT * amt;
+        float add = DT * amt / 5;
+		D_[xx][yy] += add;
+        D_[xx-1][yy] += add;
+        D_[xx+1][yy] += add;
+        D_[xx][yy-1] += add;
+        D_[xx][yy+1] += add;
 	}
 
 	void set_density(vec x, float amt) {
@@ -339,15 +344,15 @@ public:
 protected:
 	int ix_x(float x) const {
 		int ret = int((x - ll_.x) / (ur_.x - ll_.x) * W);
-		if (ret < 0) return 0;
-		if (ret > W-1) return W-1;
+		if (ret < 1) return 1;
+		if (ret > W-2) return W-2;
 		return ret;
 	}
 
 	int ix_y(float y) const {
 		int ret = int((y - ll_.y) / (ur_.y - ll_.y) * H);
-		if (ret < 0) return 0;
-		if (ret > H-1) return H-1;
+		if (ret < 1) return 1;
+		if (ret > H-2) return H-2;
 		return ret;
 	}
 
