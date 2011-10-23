@@ -24,12 +24,13 @@ const int CLAMPH = 20;
 
 const float INVINCIBLE_TIME = 3;
 const float PARTICLE_RATE = 50;
-const float DEATH_DENSITY = 3e-3;
+const float PLAYER_DEATH_DENSITY = 1e-2;
+const float ENEMY_DEATH_DENSITY = 3e-3;
 const float FLOWSPEED = 1600;
 const float INCOME_RATE = 1;
 const float EMPTY_RATE = 2;
 const float VISCOSITY = 0;
-const float DIFFUSION = 0;//5e-6;
+const float DIFFUSION = 5e-6;
 const float EATDIST = 9;
 const float EATENERGY = 6.0/PARTICLE_RATE;
 const float DIE_ENERGY = 0;

@@ -173,7 +173,7 @@ private:
 
 	void spawn_animation(vec pos) {
 		float balance = field_->get_balance();
-		float power = -2.5 - 2.5*balance/100;
+		float power = -2.5 - balance/5;
 		if (power > 0) power = 0;
 		explosions_.push_back(new DensityGlobExplosion(pos, 0.2, power, 15, 5));
 	}
@@ -247,7 +247,7 @@ public:
 
 		invincible_time_ -= DT;
 		level_display_time_ -= DT;
-		if (!dead_ && invincible_time_ <= 0 && field_->get_density(player_->position()) < -DEATH_DENSITY) {
+		if (!dead_ && invincible_time_ <= 0 && field_->get_density(player_->position()) < -PLAYER_DEATH_DENSITY) {
 			player_->die();
 			if (player_->get_life() <= 0) {
 				dead_ = true;
@@ -536,8 +536,9 @@ private:
 		virtual vec position() const = 0;
 		virtual void set_position(vec pos) = 0;
 		virtual bool vulnerable() const { return true; }
+        virtual float death_density() const { return ENEMY_DEATH_DENSITY; }
 		virtual bool dead(const GalagaMode* mode) const {
-			return vulnerable() && mode->field_->get_density(position()) > DEATH_DENSITY;
+			return vulnerable() && mode->field_->get_density(position()) > death_density();
 		}
 		virtual bool should_explode() const { return true; }
 		virtual int par_score() const { return 10; }
@@ -823,14 +824,8 @@ private:
 	public:
 		VortexEnemy(vec pos, float wait, float difficulty) 
 			: pos_(pos), wait_(wait), tex_(load_texture(ICHOR_DATADIR "/vortexball.png")),
-			  lifetime_(0), total_density_(0), death_(false)
+			  lifetime_(0), death_(false)
 		{ }
-
-		~VortexEnemy() {
-			if (mode_) {
-				mode_->field_->alter_balance(total_density_);
-			}
-		}
 
 		void draw(const GalagaMode* mode) {
 			if (wait_ > 0) return;
@@ -859,11 +854,9 @@ private:
 					continue;
 				}
 				if (direction > 0) {  // expanding
-					total_density_ += mode->field_->get_density(src);
 					mode->field_->set_density(src, 0);
 				}
 				else {                // contracting
-					total_density_ += 0.5 * DT;
 					mode->field_->add_density(src, -0.5);
 				}
 				mode->field_->add_velocity(src, 20*direction*~dir);
@@ -879,6 +872,7 @@ private:
 		bool vulnerable() const { return wait_ <= 0; }
 		float lifetime() const { return lifetime_; }
 		int par_score() const { return 20; }
+        float death_density() const { return 1e-2; }
 		bool dead(const GalagaMode* mode) const { return death_ || Enemy::dead(mode); } 
 
 	private:
@@ -886,7 +880,6 @@ private:
 		float wait_;
 		Texture* tex_;
 		float lifetime_;
-		float total_density_;
 		GalagaMode* mode_;
 		bool death_;
 	};

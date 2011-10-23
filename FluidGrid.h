@@ -281,6 +281,16 @@ public:
 		diffuse(FluidUtils::NONE, D_back_, D_, diffusion_);
 		advect(FluidUtils::NONE, D_, D_back_, u, v);
 		
+        // recalculate balance, just in case (numerical drift, bad programming, who knows)
+        total_density_ = 0;
+        for (int i = 0; i < W; i++) {
+            for (int j = 0; j < H; j++) {
+                total_density_ += D_[i][j];
+            }
+        }
+                
+        /*
+        // Some sort of correction.
 		float postotal = 0;
 		float negtotal = 0;
 		for (int i = 0; i < W; i++) {
@@ -289,6 +299,7 @@ public:
 				else              negtotal += D_[i][j];
 			}
 		}
+        // postotal * posfact^2 - total_density * posfact + negtotal = 0  ??
 		float posfact = (total_density_ + sqrt(total_density_*total_density_ - 4*postotal*negtotal)) / (2*postotal);
 		float negfact = 1/posfact;
 		if (is_a_number(negfact) && is_a_number(posfact)) {
@@ -303,6 +314,7 @@ public:
 				}
 			}
 		}
+        // */
 	}
 
 	float get_density_direct(int x, int y) const {
@@ -316,10 +328,6 @@ public:
 
 	float get_balance() const {
 		return total_density_;
-	}
-
-	void alter_balance(float amt) {
-		total_density_ += amt;
 	}
 
 	void erase()

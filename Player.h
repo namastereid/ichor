@@ -16,7 +16,7 @@ public:
 	{ }
 
 	bool check_hit(DensityGrid* field_) {
-		return field_->get_density(pos_) * sign_ < -DEATH_DENSITY;
+		return field_->get_density(pos_) * sign_ < -PLAYER_DEATH_DENSITY;
 	}
 
 	void die() {
